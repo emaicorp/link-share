@@ -1,0 +1,7 @@
+.iphoneFrame {
+    border: 1px solid #ccc; /* Light grey outline */
+    border-radius: 30px;    /* Rounded corners matching iPhone shape */
+    box-shadow: 0 0 0 1px #ccc; /* Additional subtle outline */
+    height: fit-content;
+    width: fit-content;
+  }
