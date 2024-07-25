@@ -1,17 +1,15 @@
+"use client"
 import React from "react";
 import { IPhoneMockup } from "react-device-mockup";
-import styles from "./createLink.module.css";
-import { db } from "@/firebase.config";
-import {
-  UserImage,
-  UserName,
-  UserEmail,
-  AllUserLinks,
-} from "@/components/ui/skeletons";
+import { UserImage, UserName, UserEmail, AllUserLinks, AllLinks } from "@/components/ui/skeletons";
 import { Suspense } from "react";
+import {useUserLinks} from "@/app/hooks/useUserLinks"; // Adjust the import path as needed
 
-function MockupPreview() {
-    // Assuming you have a reference to your Firestore database
+const MockupPreview: React.FC = () => {
+  const { links, loading, error } = useUserLinks();
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <IPhoneMockup
@@ -22,7 +20,7 @@ function MockupPreview() {
       hideStatusBar={true}
       frameOnly={true}
     >
-      <div className="mt-[5vh] w-full  flex items-center flex-col p-[20px] space-y-[56px]">
+      <div className="mt-[5vh] w-full flex items-center flex-col p-[20px] space-y-[56px]">
         <div className="space-y-[25px] flex items-center flex-col">
           <UserImage />
           <div className="userinfor space-y-[13px] flex items-center flex-col">
@@ -31,13 +29,12 @@ function MockupPreview() {
           </div>
         </div>
         <div className="links w-full">
-            <Suspense fallback={<AllUserLinks />}>
-              <AllUserLinks />
-            </Suspense>
+            {links.length > 0 ? ( <AllLinks  links={links}  loading={false}/>):(<AllUserLinks  />)}
+         
         </div>
       </div>
     </IPhoneMockup>
   );
-}
+};
 
 export default MockupPreview;
