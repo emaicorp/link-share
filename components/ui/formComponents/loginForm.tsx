@@ -5,7 +5,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { any, z } from "zod";
 import Image from "next/image";
 import { IoIosLock } from "react-icons/io";
 import {
@@ -20,10 +20,11 @@ import { Button } from "../button";
 import { FormSchema } from "./formSchema";
 import userServices from "@/app/services/user.services";
 import { useRouter } from "next/navigation";
-
+import { SetCookies } from "@/lib/cookies";
 interface LoginFormProps {
   onSwitch: () => void;
 }
+
 
 export function LoginForm({ onSwitch }: LoginFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -37,8 +38,14 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     userServices.loginUser(data.email, data.password).then((userCredential) => {
+      console.log(userCredential)
+      SetCookies(userCredential)
+      
      router.push("/dashboard")
-    });
+    })
+    .catch((err)=>{
+      alert(err.message);
+    })
   }
 
   return (

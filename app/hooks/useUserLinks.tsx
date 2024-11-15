@@ -23,8 +23,9 @@ const useUserLinks = () => {
       const user = getAuth().currentUser;
       if (user) {
         const userId = user.uid;
+        console.log(userId)
         try {
-          const linksCollection = collection(db, "links", userId, "links");
+          const linksCollection = collection(db, "links", userId);
           const q = query(linksCollection);
           const querySnapshot = await getDocs(q);
           const linksData: Link[] = querySnapshot.docs.map(doc => ({
