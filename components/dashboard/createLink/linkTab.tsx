@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { FaGripLines } from "react-icons/fa";
@@ -10,8 +10,9 @@ import clsx from "clsx";
 import { FaLink } from "react-icons/fa6";
 import * as z from "zod";
 import { getAuth } from "firebase/auth";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, where , getDocs , doc, query , updateDoc ,QueryDocumentSnapshot } from "firebase/firestore";
 import { db } from "@/firebase.config";
+import { toast } from 'react-toastify';
 
 interface LinkTabProps {
   // Define any props your component might use here
@@ -24,10 +25,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useUserLinks } from "@/app/hooks/useUserLinks";
 
 const LinkTab: React.FC<LinkTabProps> = () => {
-  const [links, setLinks] = useState<{ id: number; url: string; platform: string; error: string }[]>([]);
+  const { links, loading, error } = useUserLinks();
+  const [linksData, setLinks] = useState<{ id: number; url: string; platform: string; error: string }[]>([]);
   const [showInitialContent, setShowInitialContent] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!loading && links) {
+      setLinks(links.map(link => ({ ...link, id: Number(link.id), error: "" })));
+      setShowInitialContent(links.length === 0);
+    }
+  }, [loading, links]);
 
   const handleAddLink = () => {
     setLinks((prevLinks) => [...prevLinks, { id: prevLinks.length + 1, url: "", platform: "Github", error: "" }]);
@@ -35,14 +45,14 @@ const LinkTab: React.FC<LinkTabProps> = () => {
   };
 
   const handleInputChange = (index: number, value: string) => {
-    const updatedLinks = [...links];
+    const updatedLinks = [...linksData];
     updatedLinks[index].url = value;
     updatedLinks[index].error = "";
     setLinks(updatedLinks);
   };
 
   const handlePlatformChange = (index: number, platform: string) => {
-    const updatedLinks = [...links];
+    const updatedLinks = [...linksData];
     updatedLinks[index].platform = platform;
     setLinks(updatedLinks);
   };
@@ -51,7 +61,7 @@ const LinkTab: React.FC<LinkTabProps> = () => {
     const urlSchema = z.string().url();
     let allValid = true;
 
-    const updatedLinks = links.map((link) => {
+    const updatedLinks = linksData.map((link) => {
       try {
         urlSchema.parse(link.url);
         return { ...link, error: "" };
@@ -67,32 +77,59 @@ const LinkTab: React.FC<LinkTabProps> = () => {
 
   const handleSave = async () => {
     if (validateLinks()) {
+      let hasError = false; // Track if an error occurs
+  
       try {
         const auth = getAuth();
         const user = auth.currentUser;
-        
+  
         if (!user) {
           throw new Error("No authenticated user found.");
         }
-
+  
         const userId = user.uid;
         const linksCollectionRef = collection(db, "links");
-
-        for (const link of links) {
-          await addDoc(linksCollectionRef, {
-            userId,
-            url: link.url,
-            platform: link.platform,
-            createdAt: new Date(),
-          });
+  
+        for (const link of linksData) {
+          // Query Firestore for existing link by userId and platform
+          const querySnapshot = await getDocs(
+            query(
+              linksCollectionRef, 
+              where("userId", "==", userId),
+              where("platform", "==", link.platform)
+            )
+          );
+  
+          if (!querySnapshot.empty) {
+            // Update the existing document
+            querySnapshot.forEach(async (doc :  typeof QueryDocumentSnapshot) => {
+              const docRef = doc.ref;
+              await updateDoc(docRef, { url: link.url, updatedAt: new Date() });
+            });
+          } else {
+            // Add a new document if no match found
+            await addDoc(linksCollectionRef, {
+              userId,
+              url: link.url,
+              platform: link.platform,
+              createdAt: new Date(),
+            });
+          }
         }
-
-        console.log("Links have been successfully saved.");
       } catch (error) {
+        hasError = true; // Mark that an error occurred
         console.error("Error saving links to Firebase:", error);
+        toast.error("Error saving links. Please try again.");
+      } finally {
+        // Show success toast only if no errors occurred
+        if (!hasError) {
+          toast.success("Links have been successfully saved.");
+        }
       }
     }
   };
+  
+  
 
   return (
     <div className="">
@@ -135,13 +172,14 @@ const LinkTab: React.FC<LinkTabProps> = () => {
                 </div>
               ) : (
                 <div className="links-list space-y-[20px] ">
-                  {links.length > 0 ? (
-                    links.map((link, index) => (
-                      <div key={link.id} className="bg-lightGary p-[20px] rounded-[12px] space-y-[12px]">
+                  {linksData.length > 0 ? (
+                    
+                    linksData.map((link, index) => (
+                      <div key={link.id || index} className="bg-lightGary p-[20px] rounded-[12px] space-y-[12px]">
                         <div className="flex w-full justify-between items-center">
                           <span className="flex items-center gap-2">
                             <FaGripLines />
-                            {`Link #${link.id}`}
+                            {`Link #${index + 1 }`}
                           </span>
                           <span>Remove</span>
                         </div>
@@ -193,7 +231,7 @@ const LinkTab: React.FC<LinkTabProps> = () => {
       <div className="submit flex p-[20px]">
         <Button
           className="bg-purpleMain disabled:bg-purpleMain text-white ml-auto hover:shadow-custom-shadow-purpleMain hover:bg-purpleHover hover:border"
-          disabled={links.length === 0}
+          disabled={linksData.length === 0}
           onClick={handleSave}
         >
           Save

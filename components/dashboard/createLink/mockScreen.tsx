@@ -3,10 +3,11 @@ import React from "react";
 import { IPhoneMockup } from "react-device-mockup";
 import { UserImage, UserName, UserEmail, AllUserLinks, AllLinks } from "@/components/ui/skeletons";
 import { Suspense } from "react";
-import {useUserLinks} from "@/app/hooks/useUserLinks"; // Adjust the import path as needed
+import {useUserLinks, userDetails} from "@/app/hooks/useUserLinks"; // Adjust the import path as needed
 
 const MockupPreview: React.FC = () => {
   const { links, loading, error } = useUserLinks();
+  const {image,email,displayName,loadingDetails,errorDetails} = userDetails()
 console.log(links)
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -22,10 +23,11 @@ console.log(links)
     >
       <div className="mt-[5vh] w-full flex items-center flex-col p-[20px] space-y-[56px]">
         <div className="space-y-[25px] flex items-center flex-col">
-          <UserImage />
+           <UserImage  imageSrc={image}/>  
+          
           <div className="userinfor space-y-[13px] flex items-center flex-col">
-            <UserName />
-            <UserEmail />
+            <UserName name ={displayName} />
+            <UserEmail email = {email} />
           </div>
         </div>
         <div className="links w-full">

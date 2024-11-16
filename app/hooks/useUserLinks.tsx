@@ -1,10 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, type QuerySnapshot, type DocumentData } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  type QuerySnapshot,
+  type DocumentData,
+} from "firebase/firestore";
 import { db } from "@/firebase.config";
 import { useRouter } from "next/navigation";
 import { GetCookies } from "@/lib/cookies";
-
+import { getAuth } from "firebase/auth";
 
 interface Link {
   id: string;
@@ -12,9 +19,16 @@ interface Link {
   platform: string;
 }
 
+interface ProviderData {
+  photoURL: string | null;
+  displayName: string | null;
+  email: string | null;
+}
+
 interface Credential {
   user: {
     uid: string;
+    providerData: ProviderData[];
   };
 }
 
@@ -39,17 +53,18 @@ const useUserLinks = () => {
 
           if (credential?.user?.uid) {
             const userId = credential.user.uid;
-            console.log("User ID:", userId);
 
             const linksCollection = collection(db, "links");
             const q = query(linksCollection, where("userId", "==", userId));
             const unsubscribe = onSnapshot(
               q,
               (snapshot: typeof QuerySnapshot) => {
-                const linksData = snapshot.docs.map((doc: typeof DocumentData) => ({
-                  id: doc.id,
-                  ...(doc.data() as Omit<Link, "id">),
-                }));
+                const linksData = snapshot.docs.map(
+                  (doc: typeof DocumentData) => ({
+                    id: doc.id,
+                    ...(doc.data() as Omit<Link, "id">),
+                  })
+                );
                 setLinks(linksData);
               }
             );
@@ -78,5 +93,47 @@ const useUserLinks = () => {
 
   return { links, loading, error };
 };
+const userDetails =  () => {
+  const [image, setImage] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState<boolean>(true);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
-export { useUserLinks };
+  useEffect(() => {
+    const fetchDetails = async () => {
+      setLoadingDetails(true); // Set loading to true at the start
+      const Details = await GetCookies(); // raw string or null
+      if (!Details) {
+        throw new Error("No cookie found"); // Handle null case
+      }
+      let credential: Credential;
+
+      try {
+        credential = JSON.parse(Details) as Credential; // Parse raw cookie
+
+        const { user } = credential;
+        const { providerData } = user;
+        if (providerData && providerData.length > 0) {
+          const profile = providerData[0]; // Assuming you want the first provider's data
+          setImage(profile.photoURL || null);
+          setDisplayName(profile.displayName || null);
+          setEmail(profile.email || null);
+        } else {
+          setErrorDetails("No provider data available");
+        }
+      } catch (error: any) {
+        setErrorDetails(error.message || "Error fetching user details");
+        console.error("Error fetching user details:", error);
+      } finally {
+        setLoadingDetails(false); // Ensure loading is set to false in the end
+      }
+    };
+
+    fetchDetails();
+  }, []); // Added dependency array to run effect only once
+
+  return { image, displayName, email, loadingDetails, errorDetails };
+};
+
+export { useUserLinks, userDetails };
