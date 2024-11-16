@@ -1,18 +1,27 @@
+"use server"
 import { cookies } from "next/headers";
 
-export async function SetCookies({credential} : any){
-    const cookieStore = await cookies();
+export async function SetCookies({ credential }: { credential: string }) {
+    const cookieStore = cookies();
+    cookieStore.set('credential', credential, {
+        path: '/', // Make the cookie available across the whole site
+        httpOnly: false, // Allows JavaScript access (use true for security on sensitive data)
+        secure: process.env.NODE_ENV === 'production', // Secure only in production
+        sameSite: 'strict', // Prevents CSRF
+        maxAge: 60 * 60 * 24 * 7, // Cookie expiration (7 days in seconds)
+    });
+}
+export async function GetCookies() {
+    const cookieStore = cookies();
+    const cookieValue = cookieStore.get('credential');
+    console.log("Retrieved Cookie Value:", cookieValue);
+    return cookieValue ? cookieValue.value : null;
+}
 
-    cookieStore.set('credential', credential)
+export async function DeleteCookies({ credential }: { credential: any }) {
+    const cookieStore = cookies();
+    const isDeleted = cookieStore.delete('credential');
+    console.log("Cookie Deleted:", isDeleted);
+    return isDeleted;
 }
-export async function GetCookies({credential} : any){
-    const cookieStore = await cookies();
 
-    const hasCookies  = cookieStore.has(credential)
-    return hasCookies ? hasCookies : false
-}
-export async function DeleteCookies({credential} : any){
-    const cookieStore = await cookies();
-    const isDeleted = cookieStore.delete(credential)
-    return isDeleted ? isDeleted : false
-}

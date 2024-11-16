@@ -7,7 +7,7 @@ import {useUserLinks} from "@/app/hooks/useUserLinks"; // Adjust the import path
 
 const MockupPreview: React.FC = () => {
   const { links, loading, error } = useUserLinks();
-
+console.log(links)
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
@@ -28,10 +28,10 @@ const MockupPreview: React.FC = () => {
             <UserEmail />
           </div>
         </div>
-        <div className="links w-full">
+        {/* <div className="links w-full">
             {links.length > 0 ? ( <AllLinks  links={links}  loading={false}/>):(<AllUserLinks  />)}
          
-        </div>
+        </div> */}
       </div>
     </IPhoneMockup>
   );

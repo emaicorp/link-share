@@ -39,9 +39,17 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     userServices.loginUser(data.email, data.password).then((userCredential) => {
       console.log(userCredential)
-      SetCookies(userCredential)
-      
-     router.push("/dashboard")
+      const plainUserCredential = JSON.stringify(userCredential);
+// SetCookies({ credential: plainUserCredential });
+      SetCookies({ credential: plainUserCredential })
+    .then(() => {
+        console.log("Cookie set successfully");
+        // router.push("/dashboard");
+    })
+    .catch((error) => {
+        console.error("Error setting cookie:", error);
+    });
+
     })
     .catch((err)=>{
       alert(err.message);
