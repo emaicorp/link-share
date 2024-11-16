@@ -12,7 +12,7 @@ export async function SetCookies({ credential }: { credential: string }) {
     });
 }
 export async function GetCookies() {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const cookieValue = cookieStore.get('credential');
     console.log("Retrieved Cookie Value:", cookieValue);
     return cookieValue ? cookieValue.value : null;

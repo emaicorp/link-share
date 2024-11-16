@@ -28,10 +28,10 @@ console.log(links)
             <UserEmail />
           </div>
         </div>
-        {/* <div className="links w-full">
+        <div className="links w-full">
             {links.length > 0 ? ( <AllLinks  links={links}  loading={false}/>):(<AllUserLinks  />)}
          
-        </div> */}
+        </div>
       </div>
     </IPhoneMockup>
   );
