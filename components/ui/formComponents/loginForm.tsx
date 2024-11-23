@@ -25,7 +25,6 @@ interface LoginFormProps {
   onSwitch: () => void;
 }
 
-
 export function LoginForm({ onSwitch }: LoginFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -37,21 +36,22 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
   const router = useRouter();
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    userServices.loginUser(data.email, data.password).then((userCredential) => {
-      const plainUserCredential = JSON.stringify(userCredential);
-// SetCookies({ credential: plainUserCredential });
-      SetCookies({ credential: plainUserCredential })
-    .then(() => {
-        router.push("/dashboard");
-    })
-    .catch((error) => {
-        console.error("Error setting cookie:", error);
-    });
-
-    })
-    .catch((err)=>{
-      alert(err.message);
-    })
+    userServices
+      .loginUser(data.email, data.password)
+      .then((userCredential) => {
+        const plainUserCredential = JSON.stringify(userCredential);
+        // SetCookies({ credential: plainUserCredential });
+        SetCookies({ credential: plainUserCredential })
+          .then(() => {
+            router.push("/dashboard");
+          })
+          .catch((error) => {
+            console.error("Error setting cookie:", error);
+          });
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
   }
 
   return (
@@ -76,10 +76,21 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
                 >
                   Email Address
                 </FormLabel>
-                <div className={clsx("flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] focus-within:border-purpleMain focus-within:border-[1px] border", {
-                  "border-redMain focus-within:shadow-transparent focus-within:border-redMain": form.formState.errors.email,
-                })}>
-                  <Image src={"/images/mail.svg"} height={15} width={15} alt="mail" />
+                <div
+                  className={clsx(
+                    "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] focus-within:border-purpleMain focus-within:border-[1px] border",
+                    {
+                      "border-redMain focus-within:shadow-transparent focus-within:border-redMain":
+                        form.formState.errors.email,
+                    }
+                  )}
+                >
+                  <Image
+                    src={"/images/mail.svg"}
+                    height={15}
+                    width={15}
+                    alt="mail"
+                  />
                   <FormControl>
                     <Input
                       placeholder="e.g alex@gmail.com"
@@ -89,7 +100,13 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
                       })}
                     />
                   </FormControl>
-                  <span className={clsx("text-bodySmall w-[162px] text-redMain", { "block": form.formState.errors.email, })}>{form.formState.errors.email?.message}</span>
+                  <span
+                    className={clsx("text-bodySmall w-[162px] text-redMain", {
+                      block: form.formState.errors.email,
+                    })}
+                  >
+                    {form.formState.errors.email?.message}
+                  </span>
                 </div>
               </FormItem>
             )}
@@ -106,9 +123,15 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
                 >
                   Password
                 </FormLabel>
-                <div className={clsx("flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] focus-within:border-purpleMain focus-within:border-[1px] border", {
-                  "border-redMain focus-within:shadow-transparent focus-within:border-redMain": form.formState.errors.password,
-                })}>
+                <div
+                  className={clsx(
+                    "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] focus-within:border-purpleMain focus-within:border-[1px] border",
+                    {
+                      "border-redMain focus-within:shadow-transparent focus-within:border-redMain":
+                        form.formState.errors.password,
+                    }
+                  )}
+                >
                   <IoIosLock size={"30px"} fill="gray" />
                   <FormControl>
                     <Input
@@ -119,7 +142,13 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
                       })}
                     />
                   </FormControl>
-                  <span className={clsx("text-bodySmall w-[162px] text-redMain", { "block": form.formState.errors.password, })}>{form.formState.errors.password?.message}</span>
+                  <span
+                    className={clsx("text-bodySmall w-[162px] text-redMain", {
+                      block: form.formState.errors.password,
+                    })}
+                  >
+                    {form.formState.errors.password?.message}
+                  </span>
                 </div>
               </FormItem>
             )}
