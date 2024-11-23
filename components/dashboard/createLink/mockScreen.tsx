@@ -8,7 +8,6 @@ import {useUserLinks, userDetails} from "@/app/hooks/useUserLinks"; // Adjust th
 const MockupPreview: React.FC = () => {
   const { links, loading, error } = useUserLinks();
   const {image,email,displayName,loadingDetails,errorDetails} = userDetails()
-console.log(links)
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 

@@ -16,7 +16,7 @@ const shimmer =
 const getPlatformDetails = (platform: string) => {
     switch (platform) {
         case 'Github':
-            return { bgColor: 'bg-gray-800', icon: <FaGithub className="mr-2" size={24} /> };
+            return { bgColor: 'bg-black', icon: <FaGithub className="mr-2" size={24} /> };
         case 'LinkedIn':
             return { bgColor: 'bg-blue-600', icon: <FaLinkedin className="mr-2" size={24} /> };
         case 'Facebook':
@@ -88,7 +88,7 @@ export function AllLinks({ links }: AllUserLinksProps) {
       <div>
         {links.map(link => (
           <div key={link.id} className="w-[100%] h-[34px] relative rounded-[8px] overflow-hidden mb-3  ">
-            <div className={`bg-skeletonGray w-[100%] h-full flex justify-between align-center px-3 items-center text-white ${getPlatformDetails(link.platform).bgColor}`}>
+            <div className={` w-[100%] h-full flex justify-between align-center px-3 items-center text-white ${getPlatformDetails(link.platform).bgColor}`}>
               <div className="flex items-center">
                 {getPlatformDetails(link.platform).icon}
               </div>

@@ -38,7 +38,6 @@ class UserService {
     async loginUser(email: string, password: string): Promise<UserCredential> {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log("User logged in successfully:", userCredential.user.uid);
             return userCredential;
         } catch (error: unknown) {
             if (error instanceof FirebaseError) {

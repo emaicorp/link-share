@@ -42,7 +42,6 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
 // SetCookies({ credential: plainUserCredential });
       SetCookies({ credential: plainUserCredential })
     .then(() => {
-        console.log("Cookie set successfully");
         router.push("/dashboard");
     })
     .catch((error) => {
