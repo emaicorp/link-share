@@ -11,7 +11,7 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 
 const NavBarComponent = () => {
   const pathname = usePathname();
-  const links = ["/dashboard", "/dashboard/profileDetails"];
+  const links = ["/dashboard", "/dashboard/profileDetails","/preview"];
   return (
     <div className="p-[24px]  w-full">
       <div className="rounded-[12px] bg-white p-[16px] flex justify-between items-center">
@@ -55,10 +55,13 @@ const NavBarComponent = () => {
           </Link>
         </div>
         <div className="preview">
-          <Button className="border-purpleMain text-purpleMain border outline-purpleMain bg-transparent hover:bg-purpleMain hover:text-white">
+          <Link 
+           href={links[2]}
+           type="button"
+          className="border-purpleMain text-purpleMain p-2 rounded border outline-purpleMain bg-transparent hover:bg-purpleMain hover:text-white">
             <MdOutlineRemoveRedEye className="hidden max-[500px]:block" />
             <span className="max-[500px]:hidden">Preview</span>
-          </Button>
+          </Link>
         </div>
       </div>
     </div>

@@ -7,12 +7,10 @@ import {
   onSnapshot,
   type QuerySnapshot,
   type DocumentData,
-  doc,
-  DocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "@/firebase.config";
 import { useRouter } from "next/navigation";
-import { GetCookies, SetCookies } from "@/lib/cookies";
+import { GetCookies } from "@/lib/cookies";
 import { getAuth } from "firebase/auth";
 
 interface Link {
@@ -95,7 +93,7 @@ const useUserLinks = () => {
 
   return { links, loading, error };
 };
-const UserDetails = () => {
+const UserDetails =  () => {
   const [image, setImage] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -104,75 +102,36 @@ const UserDetails = () => {
 
   useEffect(() => {
     const fetchDetails = async () => {
-      setLoadingDetails(true);
+      setLoadingDetails(true); // Set loading to true at the start
+      const Details = await GetCookies(); // raw string or null
+      if (!Details) {
+        throw new Error("No cookie found"); // Handle null case
+      }
+      let credential: Credential;
+
       try {
-        const Details = await GetCookies();
-        if (!Details) {
-          throw new Error("No cookie found");
-        }
+        credential = JSON.parse(Details) as Credential; // Parse raw cookie
 
-        const credential = JSON.parse(Details) as Credential;
         const { user } = credential;
-
-        // Set up Firestore listener for user document
-        const unsubscribe = onSnapshot(
-          doc(db, 'users', user.uid),
-          async (docSnapshot: DocumentSnapshot) => {
-            if (docSnapshot.exists()) {
-              const userData = docSnapshot.data();
-              
-              // Update states with latest data
-              setImage(userData.photoURL || null);
-              setDisplayName(userData.displayName || null);
-              setEmail(userData.email || null);
-
-              // Update cookie with new user data
-              const updatedCredential = {
-                ...credential,
-                user: {
-                  ...credential.user,
-                  providerData: [{
-                    ...credential.user.providerData[0],
-                    photoURL: userData.photoURL || null,
-                    displayName: userData.displayName || null,
-                    email: userData.email || null
-                  }]
-                }
-              };
-
-              // Set the updated cookie
-              await SetCookies({ 
-                credential: JSON.stringify(updatedCredential) 
-              });
-            }
-          },
-          (error : Error) => {
-            console.error("Error listening to user document:", error);
-            setErrorDetails(error.message);
-          }
-        );
-
-        // Initial setup from provider data
         const { providerData } = user;
         if (providerData && providerData.length > 0) {
-          const profile = providerData[0];
+          const profile = providerData[0]; // Assuming you want the first provider's data
           setImage(profile.photoURL || null);
           setDisplayName(profile.displayName || null);
           setEmail(profile.email || null);
+        } else {
+          setErrorDetails("No provider data available");
         }
-
-        // Cleanup function to unsubscribe from snapshot listener
-        return () => unsubscribe();
       } catch (error: any) {
         setErrorDetails(error.message || "Error fetching user details");
         console.error("Error fetching user details:", error);
       } finally {
-        setLoadingDetails(false);
+        setLoadingDetails(false); // Ensure loading is set to false in the end
       }
     };
 
     fetchDetails();
-  }, []); // Empty dependency array for single execution
+  }, []); // Added dependency array to run effect only once
 
   return { image, displayName, email, loadingDetails, errorDetails };
 };
