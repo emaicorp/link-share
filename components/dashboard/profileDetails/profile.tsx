@@ -51,19 +51,23 @@ const Profile = () => {
         displayName: `${data.firstName} ${data.lastName} `,
         photoURL: imageUrl || null
       }).then(() => {
+        console.log('Profile updated successfully')
         toast.success(`Profile updated successfully`)
       }).catch((error) => {
         // Handle error
+        console.error(error)
         toast.error(error)
       });
     } catch (error) {
+      console.error(error)
+
       toast.error('Upload failed:');
     }
   };
 
   return (
-    <div className="flex gap-[24px]  p-[24px] pt-0">
-      <div className="p-[24px]  w-[560px] rounded-[12px] bg-white items-center flex justify-center">
+    <div className="flex gap-[24px]  p-[24px] pt-0 w-100">
+      <div className="p-[24px] md:flex  w-[560px] rounded-[12px] bg-white items-center hidden justify-center">
         <MockupPreview />
       </div>
       <div className="rounded-[12px] bg-white w-[808px] p-[40px] flex flex-col gap-[20px]">
