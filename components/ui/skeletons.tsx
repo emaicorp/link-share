@@ -30,7 +30,7 @@ const getPlatformDetails = (platform: string) => {
 
 export function UserImage({ imageSrc }: { imageSrc: string | null }) {
     return (
-        <div className={`w-[59px] h-[59px] relative rounded-full overflow-hidden ${imageSrc ? "" : shimmer}`}>
+        <div className={`relative rounded-full overflow-hidden ${imageSrc ? "w-[69px] h-[69px] border border-red-500" : ` w-[59px] h-[59px] ${shimmer}`}`}>
             {imageSrc ? ( // Check if imageSrc is not null
                 <Image src={imageSrc} alt="User" layout="fill" objectFit="cover" /> // Use Next.js Image component
             ) : (
@@ -41,9 +41,9 @@ export function UserImage({ imageSrc }: { imageSrc: string | null }) {
 };
 export function UserName({ name }: { name: string | null }) {
     return (
-        <div className={`${name ? "w-[80%] h-[30px]" : `w-[160px] h-[16px] ${shimmer}`} relative rounded-[104px] overflow-hidden`}>
+        <div className={`${name ? "w-[100%] h-[fit] border border-slate-200" : `w-[160px] h-[16px] ${shimmer}`} relative rounded-[104px] overflow-hidden`}>
             {name ? (
-                <div className=" w-full h-full flex items-center justify-center">
+                <div className=" w-100  flex items-center font-[500] justify-center text-[12px]">
                     {name}
                 </div>
             ) : (
@@ -54,9 +54,9 @@ export function UserName({ name }: { name: string | null }) {
 };
 export function UserEmail({ email }: { email: string | null }) {
     return (
-        <div className={`${email ? "w-[80%] h-[30px]" : `w-[74px] h-[16px] ${shimmer}`}  relative rounded-[104px] overflow-hidden`}>
+        <div className={`${email ? "w-[100%] h-[30px]" : `w-[74px] h-[16px] ${shimmer}`}  relative rounded-[104px] overflow-hidden`}>
             {email ? (
-                <div className=" w-full h-full flex items-center justify-center text-xs p-2">
+                <div className=" w-full h-full flex items-center justify-center text-[10px] p-2">
                     {email}
                 </div>
             ) : (

@@ -35,23 +35,19 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
   });
   const router = useRouter();
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    userServices
-      .loginUser(data.email, data.password)
-      .then((userCredential) => {
-        const plainUserCredential = JSON.stringify(userCredential);
-        // SetCookies({ credential: plainUserCredential });
-        SetCookies({ credential: plainUserCredential })
-          .then(() => {
-            router.push("/dashboard");
-          })
-          .catch((error) => {
-            console.error("Error setting cookie:", error);
-          });
-      })
-      .catch((err) => {
-        alert(err.message);
-      });
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      const userCredential = await userServices.loginUser(data.email, data.password);
+      
+      const plainUserCredential = {user : userCredential.user}
+      
+      await SetCookies({ credential: JSON.stringify(plainUserCredential) });
+      
+      router.push("/dashboard");
+    } catch (error : any) {
+      console.error("Login error:", error);
+      // alert(error.message);
+    }
   }
 
   return (

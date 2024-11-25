@@ -26,6 +26,7 @@ const formSchema = z.object({
 
 const Profile = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [updateing ,setUpdating] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,7 +38,10 @@ const Profile = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    
     try {
+      console.log(data)
+      setUpdating(true)
       const auth = getAuth();
       if (!auth.currentUser) return;
 
@@ -52,13 +56,16 @@ const Profile = () => {
         photoURL: imageUrl || null
       }).then(() => {
         console.log('Profile updated successfully')
+        setUpdating(false)
         toast.success(`Profile updated successfully`)
       }).catch((error) => {
         // Handle error
+        setUpdating(false)
         console.error(error)
         toast.error(error)
       });
     } catch (error) {
+      setUpdating(false)
       console.error(error)
 
       toast.error('Upload failed:');
@@ -171,47 +178,7 @@ const Profile = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="flex justify-between align-center  px-0">
-                  <FormLabel className="text-gray-500 w-[30%]">Email</FormLabel>
-
-                  <div
-                    className={clsx(
-                      "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] w-[70%]", // base classes without border
-                      {
-                        "border border-slate-300 focus-within:border-purpleMain focus-within:border-[1px]":
-                          !form.formState.errors.email, // normal state
-                        "border border-redMain focus-within:border-redMain focus-within:shadow-transparent":
-                          form.formState.errors.email, // error state
-                      }
-                    )}
-                  >
-                    <FormControl>
-                      <input
-                        {...field}
-                        type="email"
-                        className={clsx(
-                          "bg-transparent focus-within:outline-none rounded-[8px] p-[10px] w-[65%]",
-                          {
-                            "border-red-500": form.formState.errors.email,
-                          }
-                        )}
-                      />
-                    </FormControl>
-                    <span
-                      className={clsx("text-bodySmall text-redMain", {
-                        block: form.formState.errors.email,
-                      })}
-                    >
-                      {form.formState.errors.email?.message}
-                    </span>
-                  </div>
-                </FormItem>
-              )}
-            />
+          
           </form>
         </Form>
         <div className="flex justify-end">
@@ -219,7 +186,7 @@ const Profile = () => {
             onClick={form.handleSubmit(onSubmit)}
             className="bg-purpleMain text-white p-[10px] rounded-[8px]"
           >
-            Save
+            {updateing ? "Saving..." : "Save"}
           </button>
         </div>
       </div>
