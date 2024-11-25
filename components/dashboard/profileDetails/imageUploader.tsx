@@ -16,7 +16,7 @@ const ImageUploader = ({imageFile, setImageFile}:{imageFile:File | null, setImag
   };
 
   return (
-    <div className="flex items-center justify-center h-full bg-gray-100  rounded">
+    <div className="flex items-center justify-center h-full bg-gray-50  rounded">
       <div className="flex flex-col md:flex-row justify-between w-full p-5 items-center  ">
         {/* Profile Picture Text */}
         <div className="text-gray-700 font-medium">Profile picture</div>

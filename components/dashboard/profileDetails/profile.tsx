@@ -3,9 +3,9 @@ import React from "react";
 import MockupPreview from "../createLink/mockScreen";
 import ImageUploader from "./imageUploader";
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import {
   Form,
   FormControl,
@@ -14,16 +14,19 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import clsx from "clsx";
+import { getAuth, updateProfile } from "firebase/auth";
+import { UploadFile } from "@/app/hooks/fileUpload";
+import { toast } from 'react-toastify';
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
-})
+});
 
 const Profile = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,7 +34,32 @@ const Profile = () => {
       lastName: "",
       email: "",
     },
-  })
+  });
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    try {
+      const auth = getAuth();
+      if (!auth.currentUser) return;
+
+      let imageUrl;
+      if (imageFile) {
+        imageUrl = await UploadFile(imageFile);
+        console.log('File uploaded successfully:', imageUrl);
+      }
+       
+      updateProfile(auth.currentUser, {
+        displayName: `${data.firstName} ${data.lastName} `,
+        photoURL: imageUrl || null
+      }).then(() => {
+        toast.success(`Profile updated successfully`)
+      }).catch((error) => {
+        // Handle error
+        toast.error(error)
+      });
+    } catch (error) {
+      toast.error('Upload failed:');
+    }
+  };
 
   return (
     <div className="flex gap-[24px]  p-[24px] pt-0">
@@ -54,31 +82,42 @@ const Profile = () => {
         </div>
 
         <Form {...form}>
-          <form className="space-y-4">
+          <form className="space-y-4 bg-gray-50 rounded p-5">
             <FormField
               control={form.control}
               name="firstName"
               render={({ field }) => (
-                <FormItem>
-                  <div className={clsx(
-                    "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] focus-within:border-purpleMain focus-within:border-[1px] border",
-                    {
-                      "border-redMain focus-within:shadow-transparent focus-within:border-redMain":
-                        form.formState.errors.firstName,
-                    }
-                  )}>
-                    <FormLabel className="text-gray-500 w-[30%]">First Name *</FormLabel>
+                <FormItem className="flex justify-between items-center px-0">
+                  <FormLabel className="text-gray-500 w-[30%]">
+                    First Name *
+                  </FormLabel>
+                  <div
+                    className={clsx(
+                      "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] w-[70%]", // base classes without border
+                      {
+                        "border border-slate-300 focus-within:border-purpleMain focus-within:border-[1px]":
+                          !form.formState.errors.firstName, // normal state
+                        "border border-redMain focus-within:border-redMain focus-within:shadow-transparent":
+                          form.formState.errors.firstName, // error state
+                      }
+                    )}
+                  >
                     <FormControl>
                       <input
                         {...field}
-                        className={clsx("border border-gray-300 rounded-[8px] p-[10px] w-[70%]", {
-                          "border-red-500": form.formState.errors.firstName,
-                        })}
+                        className={clsx(
+                          "bg-transparent focus-within:outline-none rounded-[8px] p-[10px] w-[65%]",
+                          {
+                            "border-red-500": form.formState.errors.firstName,
+                          }
+                        )}
                       />
                     </FormControl>
-                    <span className={clsx("text-bodySmall text-redMain", {
-                      block: form.formState.errors.firstName,
-                    })}>
+                    <span
+                      className={clsx("text-bodySmall text-redMain", {
+                        block: form.formState.errors.firstName,
+                      })}
+                    >
                       {form.formState.errors.firstName?.message}
                     </span>
                   </div>
@@ -90,26 +129,37 @@ const Profile = () => {
               control={form.control}
               name="lastName"
               render={({ field }) => (
-                <FormItem>
-                  <div className={clsx(
-                    "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] focus-within:border-purpleMain focus-within:border-[1px] border",
-                    {
-                      "border-redMain focus-within:shadow-transparent focus-within:border-redMain":
-                        form.formState.errors.lastName,
-                    }
-                  )}>
-                    <FormLabel className="text-gray-500 w-[30%]">Last Name *</FormLabel>
+                <FormItem className="flex justify-between items-center  px-0">
+                  <FormLabel className="text-gray-500 text-start  w-[30%]">
+                    Last Name *
+                  </FormLabel>
+                  <div
+                    className={clsx(
+                      "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] w-[70%]",
+                      {
+                        "border border-slate-300 focus-within:border-purpleMain focus-within:border-[1px]":
+                          !form.formState.errors.lastName,
+                        "border border-redMain focus-within:border-redMain focus-within:shadow-transparent":
+                          form.formState.errors.lastName,
+                      }
+                    )}
+                  >
                     <FormControl>
                       <input
                         {...field}
-                        className={clsx("border border-gray-300 rounded-[8px] p-[10px] w-[70%]", {
-                          "border-red-500": form.formState.errors.lastName,
-                        })}
+                        className={clsx(
+                          "bg-transparent focus-within:outline-none rounded-[8px] p-[10px] w-[65%]",
+                          {
+                            "border-red-500": form.formState.errors.lastName,
+                          }
+                        )}
                       />
                     </FormControl>
-                    <span className={clsx("text-bodySmall text-redMain", {
-                      block: form.formState.errors.lastName,
-                    })}>
+                    <span
+                      className={clsx("text-bodySmall text-redMain", {
+                        block: form.formState.errors.lastName,
+                      })}
+                    >
                       {form.formState.errors.lastName?.message}
                     </span>
                   </div>
@@ -121,44 +171,53 @@ const Profile = () => {
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem>
-                  <div className={clsx(
-                    "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] focus-within:border-purpleMain focus-within:border-[1px] border",
-                    {
-                      "border-redMain focus-within:shadow-transparent focus-within:border-redMain":
-                        form.formState.errors.email,
-                    }
-                  )}>
-                    <FormLabel className="text-gray-500 w-[30%]">Email</FormLabel>
+                <FormItem className="flex justify-between align-center  px-0">
+                  <FormLabel className="text-gray-500 w-[30%]">Email</FormLabel>
+
+                  <div
+                    className={clsx(
+                      "flex items-center focus-within:shadow-custom-shadow-purpleMain rounded-[8px] px-3 gap-[12px] w-[70%]", // base classes without border
+                      {
+                        "border border-slate-300 focus-within:border-purpleMain focus-within:border-[1px]":
+                          !form.formState.errors.email, // normal state
+                        "border border-redMain focus-within:border-redMain focus-within:shadow-transparent":
+                          form.formState.errors.email, // error state
+                      }
+                    )}
+                  >
                     <FormControl>
                       <input
                         {...field}
                         type="email"
-                        className={clsx("border border-gray-300 rounded-[8px] p-[10px] w-[70%]", {
-                          "border-red-500": form.formState.errors.email,
-                        })}
+                        className={clsx(
+                          "bg-transparent focus-within:outline-none rounded-[8px] p-[10px] w-[65%]",
+                          {
+                            "border-red-500": form.formState.errors.email,
+                          }
+                        )}
                       />
                     </FormControl>
-                    <span className={clsx("text-bodySmall text-redMain", {
-                      block: form.formState.errors.email,
-                    })}>
+                    <span
+                      className={clsx("text-bodySmall text-redMain", {
+                        block: form.formState.errors.email,
+                      })}
+                    >
                       {form.formState.errors.email?.message}
                     </span>
                   </div>
                 </FormItem>
               )}
             />
-
-            <div className="flex justify-end">
-              <button 
-                onClick={form.handleSubmit((data) => console.log(data))}
-                className="bg-purpleMain text-white p-[10px] rounded-[8px]"
-              >
-                Save
-              </button>
-            </div>
           </form>
         </Form>
+        <div className="flex justify-end">
+          <button
+            onClick={form.handleSubmit(onSubmit)}
+            className="bg-purpleMain text-white p-[10px] rounded-[8px]"
+          >
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );
