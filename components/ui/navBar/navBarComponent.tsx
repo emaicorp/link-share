@@ -3,7 +3,6 @@ import React from "react";
 import Image from "next/image";
 import { FaLink } from "react-icons/fa6";
 import { FaRegCircleUser } from "react-icons/fa6";
-import { Button } from "../button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
