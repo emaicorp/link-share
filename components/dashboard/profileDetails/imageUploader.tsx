@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const ImageUploader = ({imageFile, setImageFile}:{imageFile:File | null, setImageFile:React.Dispatch<React.SetStateAction<File | null>>}) => {
+const ImageUploader = ({imageFile, setImageFile}:{imageFile:any | null, setImageFile:React.Dispatch<React.SetStateAction<File | null>>}) => {
   // const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
@@ -14,7 +13,12 @@ const ImageUploader = ({imageFile, setImageFile}:{imageFile:File | null, setImag
       alert("Please upload a valid image file (PNG or JPG).");
     }
   };
-
+  useEffect(() => {
+    // Update image preview if imageFile is a URL
+    if (imageFile) {
+      setImagePreview(imageFile);
+    }
+  }, [imageFile]);
   return (
     <div className="flex items-center justify-center h-full bg-gray-50  rounded">
       <div className="flex flex-col md:flex-row justify-between w-full p-5 items-center  ">

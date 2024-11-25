@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MockupPreview from "../createLink/mockScreen";
 import ImageUploader from "./imageUploader";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,34 +33,22 @@ const formSchema = z.object({
 const Profile = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [updating, setUpdating] = useState(false);  // Corrected updating typo
+  const [imgUrl, setImgUrl] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const [lastName, setLastName] = useState<string | null>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
-   
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    try {
-      console.log(updating)
+  const { reset } = form; // Use reset to dynamically update the form values
 
-      setUpdating(true);
-  
-      const auth = getAuth();
-      if (!auth.currentUser) return;
-  
-      let imageUrl;
-      if (imageFile) {
-        imageUrl = await UploadFile(imageFile);
-        console.log('File uploaded successfully:', imageUrl);
-      }
-  
-      await updateProfile(auth.currentUser, {
-        displayName: `${data.firstName} ${data.lastName}`,
-        photoURL: imageUrl || null
-      });
+  useEffect(() => {
+    const getUserDetails = async () => {
       const Details = await GetCookies();
       if (!Details) {
         throw new Error("No cookie found");
@@ -69,10 +57,58 @@ const Profile = () => {
       const credential = JSON.parse(Details) as Credential;
       const { user } = credential;
       const { providerData } = user;
+      let first = providerData[0].displayName.split(' ')[0];
+      let last = providerData[0].displayName.split(' ')[1];
+      setFirstName(first);
+      setLastName(last);
+      setImgUrl(providerData[0].photoURL);
+
+      // After fetching, reset the form values
+      reset({
+        firstName: first || "",
+        lastName: last || "",
+      });
+    };
+
+    getUserDetails();
+  }, [reset]); // Make sure to include reset as a dependency
+
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    try {
+      console.log(updating)
+
+      setUpdating(true);
+      const Details = await GetCookies();
+      if (!Details) {
+        throw new Error("No cookie found");
+      }
+
+      const credential = JSON.parse(Details) as Credential;
+      const { user } = credential;
+      const { providerData } = user;
+  
+      const auth = getAuth();
+      if (!auth.currentUser) return;
+  
+      let imageUrl;
+      if (imageFile) {
+        imageUrl = await UploadFile(imageFile);
+      }else{
+        imageUrl = providerData[0].photoURL;
+      }
+  
+      await updateProfile(auth.currentUser, {
+        displayName: `${data.firstName} ${data.lastName}`,
+        photoURL: imageUrl || null
+      });
+      
       const updatedCredential = {
         ...credential,
         user: {
           ...credential.user,
+          photoURL: imageUrl || null,
+              displayName: `${data?.firstName} ${data.lastName}` || null,
           providerData: [
             {
               ...credential.user.providerData[0],
@@ -86,6 +122,10 @@ const Profile = () => {
       await SetCookies({
         credential: JSON.stringify(updatedCredential),
       });
+      const channel = new BroadcastChannel('cookie-change-channel');
+      channel.postMessage('cookieChanged'); // Notify other components
+      console.log("broadcast message")
+      channel.close();
   
       console.log('Profile updated successfully');
       toast.success('Profile updated successfully');
@@ -110,7 +150,7 @@ const Profile = () => {
 
         {/* Image Uploader Div */}
         <div className="h-[200px] rounded-[10px]">
-          <ImageUploader imageFile={imageFile} setImageFile={setImageFile} />
+          <ImageUploader imageFile={imgUrl} setImageFile={setImageFile} />
         </div>
 
         <Form {...form}>

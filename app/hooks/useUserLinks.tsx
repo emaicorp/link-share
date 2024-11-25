@@ -130,8 +130,21 @@ const UserDetails =  () => {
       }
     };
 
-    fetchDetails();
-  }, []); // Added dependency array to run effect only once
+    const channel = new BroadcastChannel('cookie-change-channel');
+
+    channel.onmessage = (event) => {
+      console.log('Message received:', event.data);
+      if (event.data === 'cookieChanged') {
+        fetchDetails(); // Re-fetch details when cookie changes
+      }
+    };
+
+    fetchDetails(); // Initial fetch
+
+    return () => {
+      channel.close(); // Cleanup on unmount
+    };
+  }, []);
 
   return { image, displayName, email, loadingDetails, errorDetails };
 };
