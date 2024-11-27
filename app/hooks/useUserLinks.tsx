@@ -7,6 +7,7 @@ import {
   onSnapshot,
   type QuerySnapshot,
   type DocumentData,
+  QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "@/firebase.config";
 import { useRouter } from "next/navigation";
@@ -58,9 +59,9 @@ const useUserLinks = () => {
             const q = query(linksCollection, where("userId", "==", userId));
             const unsubscribe = onSnapshot(
               q,
-              (snapshot: typeof QuerySnapshot) => {
+              (snapshot: QuerySnapshot<DocumentData>) => {
                 const linksData = snapshot.docs.map(
-                  (doc: typeof DocumentData) => ({
+                  (doc: QueryDocumentSnapshot<DocumentData>) => ({
                     id: doc.id,
                     ...(doc.data() as Omit<Link, "id">),
                   })

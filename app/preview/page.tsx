@@ -81,7 +81,7 @@ const Page = () => {
     }
     
     fetchDetails()
-  }, [userId]);
+  }, [userId, router, link]);
 
   return (
     <div>
