@@ -17,6 +17,7 @@ import {
   getDocs,
   type QuerySnapshot,
   type DocumentData,
+  QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "@/firebase.config";
 import { useRouter } from 'next/navigation'
@@ -53,14 +54,13 @@ const Page = () => {
         let linksArray : any = [];
         
         // Fetch the documents from the query
-        getDocs(q).then((querySnapshot : QuerySnapshot) => {
-          querySnapshot.forEach((doc : typeof DocumentData) => {
-            // Push the document data into the array
+        getDocs(q).then((querySnapshot: QuerySnapshot<DocumentData>) => {
+          querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
             linksArray.push(doc.data());
           });
           setLinks(linksArray);
           // You can now use the linksArray as needed
-        }).catch((error : Error) => {
+        }).catch((error: Error) => {
           router.push('/')
         });
       
