@@ -1,20 +1,22 @@
-const getInfo = async (uid : string ) => {
-    try{
-        const formData = new FormData();
-        formData.append('uid', uid);
+const getInfo = async (uid: string) => {
+    try {
         const response = await fetch('/api/users', {
             method: 'POST',
-            body: formData,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ uid }),
         });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to fetch user info');
+        }
         const data = await response.json();
-        
-        if (!response.ok) throw new Error(data.error);
-        
         return data;
-    }catch(err){
+    } catch (err) {
         console.error(err);
     }
-
 }
 
 export {getInfo}

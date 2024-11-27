@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "GOOGLE_APPLICATION_CREDENTIALS=link-share-3f8cf-firebase-adminsdk-u6f88-2614409619.json next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -19,6 +19,7 @@
     "class-variance-authority": "^0.7.0",
     "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "firebase": "^10.12.4",
     "firebase-admin": "^13.0.1",
     "form": "^0.2.4",
