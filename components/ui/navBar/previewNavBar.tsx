@@ -7,7 +7,7 @@ import { useState, useEffect } from "react"
 const PreviewNavBar = ({user, owner}:{user:any, owner:Boolean}) => {
     let userLink : string;
     if(user){
-         userLink = `https://link-share.vercel.app/?userId=${user.user.uid}`
+         userLink = `https://link-share-ochre.vercel.app/preview?userId=${user.user.uid}`
 
     }
     const copyLink = async () => {
