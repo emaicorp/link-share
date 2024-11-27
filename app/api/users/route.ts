@@ -2,7 +2,7 @@ import { initializeApp, getApps, getApp } from 'firebase-admin/app';
 import admin from 'firebase-admin';
 
 // If you want to load from a JSON file (development environment)
-const serviceAccount = require('./link-share-3f8cf-firebase-adminsdk-u6f88-2614409619.json');
+
 
 // Function to convert multiline private key properly
 const convertKey = (key: string) => key.replace(/\\n/g, "\n");
