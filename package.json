@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "GOOGLE_APPLICATION_CREDENTIALS=link-share-3f8cf-firebase-adminsdk-u6f88-2614409619.json next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

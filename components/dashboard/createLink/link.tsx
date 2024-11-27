@@ -8,7 +8,7 @@ const Link = () => {
   console.log(details)
   return (
     <div className='flex gap-[24px]  p-[24px] pt-0'>
-        <div className="p-[24px]  w-[560px] rounded-[12px] bg-white items-center flex justify-center">
+        <div className="p-[24px]  w-[560px] rounded-[12px] bg-white items-center md:flex  hidden justify-center">
             <MockupPreview />
         </div>
         <div className="rounded-[12px] bg-white w-[808px]">

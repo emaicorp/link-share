@@ -10,12 +10,16 @@ const getInfo = async (uid: string) => {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to fetch user info');
+            // console.error('API Error:', errorData);
+            return errorData
         }
+        
         const data = await response.json();
         return data;
     } catch (err) {
-        console.error(err);
+        
+        // console.error('getUserInfo error:', err);
+        throw err; // Re-throw the error for handling by the caller
     }
 }
 

@@ -78,8 +78,6 @@ const useUserLinks = () => {
         }
       } catch (error: any) {
         setError(error.message || "Error fetching links");
-        console.error("Error fetching links:", error);
-        router.push("/"); // Redirect to login page if error occurs
       } finally {
         setLoading(false);
       }
@@ -124,7 +122,6 @@ const UserDetails =  () => {
         }
       } catch (error: any) {
         setErrorDetails(error.message || "Error fetching user details");
-        console.error("Error fetching user details:", error);
       } finally {
         setLoadingDetails(false); // Ensure loading is set to false in the end
       }
@@ -133,7 +130,6 @@ const UserDetails =  () => {
     const channel = new BroadcastChannel('cookie-change-channel');
 
     channel.onmessage = (event) => {
-      console.log('Message received:', event.data);
       if (event.data === 'cookieChanged') {
         fetchDetails(); // Re-fetch details when cookie changes
       }

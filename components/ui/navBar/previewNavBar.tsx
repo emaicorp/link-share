@@ -10,8 +10,30 @@ const PreviewNavBar = ({user, owner}:{user:any, owner:Boolean}) => {
          userLink = `https://link-share.vercel.app/?userId=${user.user.uid}`
 
     }
-    const copyLink = () => {
-        alert(`Link copied to ${userLink}`)
+    const copyLink = async () => {
+        if (!userLink) return;
+        
+        try {
+            await navigator.clipboard.writeText(userLink);
+            alert('Link copied to clipboard!');
+        } catch (err) {
+            // console.error('Failed to copy link:', err);
+            // Fallback for older browsers
+            alert('Error copying to clipboard!');
+
+            const textArea = document.createElement('textarea');
+            textArea.value = userLink;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Link copied to clipboard!');
+            } catch (err) {
+                // console.error('Fallback: Failed to copy link:', err);
+                alert('Failed to copy link. Please copy it manually.');
+            }
+            document.body.removeChild(textArea);
+        }
     }
     return(
         <div className="flex justify-center items-center align-center transparent p-2 fixed w-[100%]  ">

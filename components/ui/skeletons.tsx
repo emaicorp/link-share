@@ -86,8 +86,8 @@ export function AllUserLinks ( ){
 export function AllLinks({ links }: AllUserLinksProps) {
     return (
       <div>
-        {links.map(link => (
-          <div key={link.id} className="w-[100%] h-[34px] relative rounded-[8px] overflow-hidden mb-3  ">
+        {links.map((link, index )=> (
+          <div key={index} className="w-[100%] h-[34px] relative rounded-[8px] overflow-hidden mb-3  ">
             <div className={` w-[100%] h-full flex justify-between align-center px-3 items-center text-white ${getPlatformDetails(link.platform).bgColor}`}>
               <div className="flex items-center">
                 {getPlatformDetails(link.platform).icon}

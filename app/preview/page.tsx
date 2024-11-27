@@ -19,72 +19,76 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { db } from "@/firebase.config";
+import { useRouter } from 'next/navigation'
+import { FaSpinner } from 'react-icons/fa6'
 
 const Page = () => {
   const searchParams = useSearchParams(); // Hook to get query parameters
   const userId = searchParams.get('userId'); // Get userId from URL
   const [userRecord, setUserRecord] = useState<any>(null);
-  // const [loading, setLoading] = useState(true);
-  // const { links, loading, error } = useUserLinks();
+  const [links, setLinks] = useState<any[]>([]); // Add state for links
   const [owner, setOwener ] =  useState(false);
-  console.log(userId)
+  const router = useRouter()
+  const link = useUserLinks().links
+
 
   
 
   useEffect(() => {
    let userData : any;
     const fetchDetails = async () => {
-      if (!userId) {
-        console.error("User ID is not available");
-        return; // Early return or handle the case where userId is not present
-      }
+    
       if (userId) {
         userData = await getInfo(userId); // Fetch user details using userId from URL
-        console.log(userData);
-        // const details = JSON.parse(userData)
-        // setUserRecord(details)
+        // console.log(userData)
+        if(userData.error) router.push('/')
+        const details = {"user" : userData}
 
-        // const linksCollection = collection(db, "links");
-        // const q = query(linksCollection, where("userId", "==", userId));
+        setUserRecord(details)
+
+        const linksCollection = collection(db, "links");
+        const q = query(linksCollection, where("userId", "==", userId));
         
-        // // Create an empty array to store the results
-        // let linksArray : any = [];
+        // Create an empty array to store the results
+        let linksArray : any = [];
         
-        // // Fetch the documents from the query
-        // getDocs(q).then((querySnapshot : QuerySnapshot) => {
-        //   querySnapshot.forEach((doc : typeof DocumentData) => {
-        //     // Push the document data into the array
-        //     linksArray.push(doc.data());
-        //   });
-        //   // You can now use the linksArray as needed
-        //   console.log(linksArray);
-        // }).catch((error : Error) => {
-        //   console.log("Error getting documents: ", error);
-        // });
+        // Fetch the documents from the query
+        getDocs(q).then((querySnapshot : QuerySnapshot) => {
+          querySnapshot.forEach((doc : typeof DocumentData) => {
+            // Push the document data into the array
+            linksArray.push(doc.data());
+          });
+          setLinks(linksArray);
+          // You can now use the linksArray as needed
+        }).catch((error : Error) => {
+          router.push('/')
+        });
+      
+
         
       } else {
         // Handle case where userId is not provided
-        // userData = await GetCookies();
-        // const details = JSON.parse(userData)
-        // setUserRecord(details)
-        // setOwener(true)
-        console.log(userId)
+        //  links =  useUserLinks().links;
+
+        userData = await GetCookies();
+        if(!userData) router.push('/')
+        const details = JSON.parse(userData)
+        setUserRecord(details)
+        setLinks(link); // Update links state
+        setOwener(true)
 
       }
     }
     
     fetchDetails()
   }, [userId]);
-  // if (loading) return <div>Loading...</div>;
-  // if (error) return <div>{error}</div>;
-  // if (loading) return <div>Loading...</div>;
-  // if (error) return <div>Error: {error}</div>;
-console.log(userRecord)
+
   return (
     <div>
-      <PreviewNavBar user={userRecord} owner = {owner} />
-      <div className="h-[50vh] bg-purpleMain rounded-br-[20px] rounded-bl-[20px] w-[100%]"></div>
-      {userRecord && (
+      {userRecord ? (
+        <div className="">
+              <PreviewNavBar user={userRecord} owner = {owner} />
+              <div className="h-[50vh] bg-purpleMain rounded-br-[20px] rounded-bl-[20px] w-[100%]"></div>
         
         <div className='flex justify-center align-center items-center mt-[-25Vh] '>
          
@@ -104,6 +108,11 @@ console.log(userRecord)
         </div>
       </div>
       </div>
+      </div>
+      ): (
+        <div className="w-[100%] h-[100%] absolute flex justify-center items-center align-center">
+          <FaSpinner className="custom-spinner size-[3.5rem]" />
+        </div>
       )}
       
     </div>
