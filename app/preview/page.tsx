@@ -23,8 +23,9 @@ import { db } from "@/firebase.config";
 import { useRouter } from 'next/navigation'
 import { FaSpinner } from 'react-icons/fa6'
 
-const Page = () => {
-  const searchParams = useSearchParams(); // Hook to get query parameters
+// Wrap the component using useSearchParams in Suspense
+function PreviewContent() {
+  const searchParams = useSearchParams()
   const userId = searchParams.get('userId'); // Get userId from URL
   const [userRecord, setUserRecord] = useState<any>(null);
   const [links, setLinks] = useState<any[]>([]); // Add state for links
@@ -117,6 +118,12 @@ const Page = () => {
       
     </div>
   );
-};
+}
 
-export default Page;
+export default function PreviewPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PreviewContent />
+    </Suspense>
+  )
+}
