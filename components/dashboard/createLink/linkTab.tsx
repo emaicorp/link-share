@@ -10,7 +10,18 @@ import clsx from "clsx";
 import { FaLink } from "react-icons/fa6";
 import * as z from "zod";
 import { getAuth } from "firebase/auth";
-import { collection, addDoc, where , getDocs , doc, query , updateDoc ,QueryDocumentSnapshot } from "firebase/firestore";
+import { 
+  collection, 
+  addDoc, 
+  where ,
+   getDocs , 
+   doc, 
+   query ,
+    updateDoc ,
+    QueryDocumentSnapshot ,
+    type QuerySnapshot,
+    type DocumentData,
+  } from "firebase/firestore";
 import { db } from "@/firebase.config";
 import { toast } from 'react-toastify';
 
@@ -102,7 +113,7 @@ const LinkTab: React.FC<LinkTabProps> = () => {
   
           if (!querySnapshot.empty) {
             // Update the existing document
-            querySnapshot.forEach(async (doc :  typeof QueryDocumentSnapshot) => {
+            querySnapshot.forEach(async (doc :  QueryDocumentSnapshot<DocumentData>) => {
               const docRef = doc.ref;
               await updateDoc(docRef, { url: link.url, updatedAt: new Date() });
             });
