@@ -18,6 +18,13 @@ import { UploadFile } from "@/app/hooks/fileUpload";
 import { toast } from 'react-toastify';
 import { SetCookies, GetCookies } from "@/lib/cookies";
 
+interface ProviderData {
+  displayName: string | null;
+  photoURL: string | null;
+  email: string | null;
+  // Add other provider data fields you need
+}
+
 interface Credential {
   user: {
     uid: string;
@@ -57,8 +64,8 @@ const Profile = () => {
       const credential = JSON.parse(Details) as Credential;
       const { user } = credential;
       const { providerData } = user;
-      let first = providerData[0].displayName.split(' ')[0];
-      let last = providerData[0].displayName.split(' ')[1];
+      let first = providerData[0].displayName?.split(' ')[0] ?? '';
+      let last = providerData[0].displayName?.split(' ')[1] ?? '';
       setFirstName(first);
       setLastName(last);
       setImgUrl(providerData[0].photoURL);
